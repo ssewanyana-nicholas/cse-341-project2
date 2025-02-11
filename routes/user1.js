@@ -2,18 +2,19 @@ const express = require('express');
 const { body, param } = require('express-validator');
 const usersController = require('../controllers/user1');
 const handleValidationErrors = require('../middleware/handleValidationErrors');
+const isAuthenticated = require('../middleware/authenticate');
 
 const router = express.Router();
 
 router.get('/', usersController.getAll);
 
-router.get('/:id', 
+router.get('/:id',
     param('id').isMongoId().withMessage('Invalid user ID'),
     handleValidationErrors,
     usersController.getSingle
 );
 
-router.post('/', 
+router.post('/', isAuthenticated,
     body('username').notEmpty().withMessage('Username is required'),
     body('email').isEmail().withMessage('Invalid email'),
     body('password')
@@ -24,7 +25,7 @@ router.post('/',
     usersController.createUser
 );
 
-router.put('/:id', 
+router.put('/:id', isAuthenticated,
     param('id').isMongoId().withMessage('Invalid user ID'),
     body('username').notEmpty().withMessage('Username is required'),
     body('email').isEmail().withMessage('Invalid email'),
@@ -36,7 +37,7 @@ router.put('/:id',
     usersController.updateUser
 );
 
-router.delete('/:id', 
+router.delete('/:id', isAuthenticated,
     param('id').isMongoId().withMessage('Invalid user ID'),
     handleValidationErrors,
     usersController.deleteUser
